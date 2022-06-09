@@ -91,7 +91,22 @@ let gpxTrack = new L.GPX("../data/28 Wenns-Landeck.gpx", {
 
 }).addTo(overlays.gpx);
 
-gpxTrack.on("loaded", function(evt){
+gpxTrack.on("loaded", function (evt) {
     //console.log("loaded gpx event: ", evt);
-    map.fitBounds(evt.target.getBounds());
+    let gpxLayer = evt.target;
+    map.fitBounds(gpxLayer.getBounds());
+    let popup = `<h3>${gpxLayer.get_name()}</h3>
+    <ul>
+        <li>Streckenlänge: ${Math.round(gpxLayer.get_distance()/1000)} km</li>
+        <li>tiefster Punkt: ${gpxLayer.get_elevation_min().toFixed()} m </li>
+        <li>höchster Punkte: ${gpxLayer.get_elevation_max().toFixed()} m </li>
+        <li>Hoehenmeter bergauf: ${gpxLayer.get_elevation_gain().toFixed()} m </li>
+        <li>Hoehenmeter bergab: ${gpxLayer.get_elevation_loss().toFixed()} m </li>
+    </ul>`;
+    gpxLayer.bindPopup(popup);
+})
+
+let elevationControl = L.control.elevation({}).addTo(map);
+gpxTrack.on("addline", function(evt) {
+    elevationControl.addData(evt.line);
 })
